@@ -1120,7 +1120,7 @@
   },
   "networks": {},
   "schemaVersion": "3.4.16",
-  "updatedAt": "2026-03-07T17:42:10.447Z",
+  "updatedAt": "2026-03-12T14:08:24.628Z",
   "devdoc": {
     "details": "Interface of the ERC-20 standard as defined in the ERC.",
     "events": {

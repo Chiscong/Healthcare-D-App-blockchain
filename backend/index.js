@@ -3,12 +3,14 @@ const { connectDb, getDb } = require("./database");
 const cors = require("cors");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
+const bodyParser = require("body-parser");
 const app = express();
 const PORT = process.env.PORT || 8080;
-
+const dotenv = require("dotenv");
+dotenv.config();
 function authenticateToken(req, res, next) {
   const authHeader = req.headers["authorization"];
-  const token = authHeader?.split(" ")[1]; // Bearer <token>
+  const token = authHeader?.split(" ")[1];
 
   if (!token) {
     return res.status(401).send({ error: "Token required." });
@@ -18,20 +20,17 @@ function authenticateToken(req, res, next) {
     if (err) {
       return res.status(403).send({ error: "Invalid token." });
     }
-
     req.user = user;
     next();
   });
 }
 
-// Middleware to parse JSON data
 app.use(express.json());
+app.use(bodyParser.json());
 
-// CORS configuration
 app.use(
   cors({
     origin: [
-      "https://medical-healthcare-dapp-1030.vercel.app",
       "http://localhost:3000",
     ],
     methods: ["GET", "POST"],
@@ -39,11 +38,26 @@ app.use(
   })
 );
 
-app.listen(PORT, () => {
-  console.log(`Server is listening on port ${PORT}`);
+let server;
+connectDb()
+  .then(() => {
+    server = app.listen(PORT, () => {
+      console.log(`Server is listening on port ${PORT}`);
+    });
+  })
+  .catch((error) => {
+    console.error("Failed to connect to database:", error);
+    process.exit(1);
+  });
+
+process.on("SIGINT", async () => {
+  console.log("Shutting down...");
+  if (server) server.close();
+  const { closeDb } = require("./database");
+  await closeDb();
+  process.exit(0);
 });
 
-// authentication endpoint
 app.get("/auth-endpoint", authenticateToken, (request, response) => {
   response.json({
     userType: request.user.userType,
@@ -58,13 +72,8 @@ app.get("/", (req, res) => {
 app.get("/doctor-info/:doctorAddress", async (req, res) => {
   const { doctorAddress } = req.params;
   console.log("Doctor address:", doctorAddress);
-  // Check if the doctorAddress exists in the data
   try {
-    // Connect to the database
-    await connectDb();
     const db = getDb();
-
-    // Check if user already exists (wallet address and email are unique)
     const doctorExists = await db
       .collection("doctor")
       .findOne({ walletAddress: doctorAddress });
@@ -86,11 +95,7 @@ app.get("/doctor-info/:doctorAddress", async (req, res) => {
 app.post("/register", async (req, res) => {
   let { userType, ...userData } = req.body;
   try {
-    // Connect to the database
-    await connectDb();
     const db = getDb();
-
-    // Check if user already exists (wallet address and email are unique)
     const userExists = await db.collection(userType).findOne({
       $or: [
         { walletAddress: userData.walletAddress },
@@ -102,11 +107,8 @@ app.post("/register", async (req, res) => {
       console.log("User already exists.");
       return res.status(400).send({ error: "User already exists." });
     }
-    // Hash password
     userData.password = await bcrypt.hash(userData.password, 10);
-
-    // Store user data in the database
-    const user = await db.collection(userType).insertOne(userData);
+    await db.collection(userType).insertOne(userData);
     console.log("User data stored successfully.");
     res.status(200).json({ success: "User created successfully." });
   } catch (error) {
@@ -120,11 +122,7 @@ app.post("/register", async (req, res) => {
 app.post("/login", async (req, res) => {
   let { userType, email, password } = req.body;
   try {
-    // Connect to the database
-    await connectDb();
     const db = getDb();
-
-    // Check if user exists
     const user = await db.collection(userType).findOne({ email: email });
 
     if (!user) {
@@ -132,29 +130,24 @@ app.post("/login", async (req, res) => {
       return res.status(400).send({ error: "User not found." });
     }
 
-    // Check if password is correct
     const passwordMatch = await bcrypt.compare(password, user.password);
 
     if (!passwordMatch) {
       console.log("Incorrect password.");
       return res.status(400).send({ error: "Incorrect password." });
-    } else {
-      // Generate access token
-      const accessToken = jwt.sign(
-        { userType: userType, userData: user },
-        process.env.ACCESS_TOKEN_SECRET,
-        { expiresIn: "15m" }
-      );
-
-      // Generate refresh token
-      // const refreshToken = jwt.sign(user, process.env.REFRESH_TOKEN_SECRET);
-
-      console.log("User logged in successfully.");
-      res.status(200).json({
-        success: "User logged in successfully.",
-        accessToken: accessToken,
-      });
     }
+
+    const accessToken = jwt.sign(
+      { userType: userType, userData: user },
+      process.env.ACCESS_TOKEN_SECRET,
+      { expiresIn: "15m" }
+    );
+
+    console.log("User logged in successfully.");
+    res.status(200).json({
+      success: "User logged in successfully.",
+      accessToken: accessToken,
+    });
   } catch (error) {
     console.error("Error logging in:", error);
     res.status(500).send({ error: "An error occured while trying to log in." });
