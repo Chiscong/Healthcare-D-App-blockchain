@@ -31,6 +31,7 @@ app.use(bodyParser.json());
 app.use(
   cors({
     origin: [
+      "https://healthcare-d-app-blockchain.vercel.app",
       "http://localhost:3000",
     ],
     methods: ["GET", "POST"],
