@@ -1,15 +1,10 @@
 {
   "version": 2,
-  "builds": [
+  "name": "healthcare-frontend",
+  "rewrites": [
     {
-      "src": "./index.js",
-      "use": "@vercel/node"
-    }
-  ],
-  "routes": [
-    {
-      "src": "/(.*)",
-      "dest": "/"
+      "source": "/(.*)",
+      "destination": "/index.html"
     }
   ]
 }
