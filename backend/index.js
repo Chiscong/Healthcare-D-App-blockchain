@@ -28,16 +28,10 @@ function authenticateToken(req, res, next) {
 app.use(express.json());
 app.use(bodyParser.json());
 
-app.use(
-  cors({
-    origin: [
-      "https://healthcare-d-app-blockchain.vercel.app",
-      "http://localhost:3000",
-    ],
-    methods: ["GET", "POST"],
-    credentials: true,
-  })
-);
+app.use(cors({
+    origin: process.env.CLIENT_URL,
+    credentials: true
+}));
 
 let server;
 connectDb()
