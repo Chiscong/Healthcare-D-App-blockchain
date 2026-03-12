@@ -1,0 +1,14 @@
+{
+  "name": "medical-healthcare-dapp-contracts",
+  "version": "1.0.0",
+  "description": "Smart contracts for Medical Healthcare Dapp",
+  "scripts": {
+    "test": "truffle test",
+    "compile": "truffle compile",
+    "migrate": "truffle migrate"
+  },
+  "dependencies": {
+    "@openzeppelin/contracts": "^5.0.0",
+    "truffle": "^5.11.5"
+  }
+}
