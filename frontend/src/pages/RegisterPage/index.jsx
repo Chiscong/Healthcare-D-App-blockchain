@@ -30,7 +30,7 @@ const RegistrationForm = () => {
 
   const handleConnectMetaMask = async () => {
     if (walletAddress) {
-      setError("You have already connected your wallet address");
+      setError("Bạn đã kết nối địa chỉ ví của mình");
       return;
     }
     if (window.ethereum) {
@@ -40,10 +40,10 @@ const RegistrationForm = () => {
         });
         setWalletAddress(accounts[0]);
       } catch (error) {
-        setError("MetaMask connection failed");
+        setError("Kết nối MetaMask không thành công");
       }
     } else {
-      setError("MetaMask not detected");
+      setError("MetaMask chưa được phát hiện");
     }
   };
 
@@ -53,20 +53,20 @@ const RegistrationForm = () => {
     // Perform validation
     // check if wallet address is connected
     if (!walletAddress) {
-      setError("Please connect your wallet address");
+      setError("Vui lòng kết nối địa chỉ ví của bạn");
       return;
     }
 
     // check if the email is valid
     let emailRegex = /\S+@\S+\.\S+/;
     if (!emailRegex.test(email)) {
-      setError("Please enter a valid email");
+      setError("Vui lòng nhập một địa chỉ email hợp lệ");
       return;
     }
 
     // Check if password and confirm password match
     if (password !== confirmPassword) {
-      setError("Passwords do not match");
+      setError("Mật khẩu không khớp");
       return;
     }
 
@@ -112,7 +112,7 @@ const RegistrationForm = () => {
     }).then((res) => res.json());
 
     if (response.success) {
-      alert("User registered successfully");
+      alert("Người dùng được đăng ký thành công");
       navigate("/");
     } else {
       setError(response.error);
@@ -123,15 +123,15 @@ const RegistrationForm = () => {
     <div className="flex justify-center items-center h-screen bg-gray-100">
       <div className="bg-white p-8 rounded-lg shadow-lg">
         <form onSubmit={handleSubmit} autoComplete="on" className="w-[60vw]">
-          <h2 className="text-2xl font-bold text-center">Register</h2>
+          <h2 className="text-2xl font-bold text-center">Đăng Ký</h2>
           <div className="mt-10 grid grid-cols-2 gap-4">
             <div>
               <label htmlFor="name" className="block">
-                Name:
+                Tên:
               </label>
               <input
                 type="text"
-                placeholder="Type your name"
+                placeholder="Nhập tên của bạn"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 className="border border-gray-300 rounded-md p-2 w-full"
@@ -143,7 +143,7 @@ const RegistrationForm = () => {
               </label>
               <input
                 type="email"
-                placeholder="Type your email"
+                placeholder="Nhập email của bạn"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 className="border border-gray-300 rounded-md p-2 w-full"
@@ -151,11 +151,11 @@ const RegistrationForm = () => {
             </div>
             <div>
               <label htmlFor="password" className="block">
-                Password:
+                Mật khẩu:
               </label>
               <input
                 type="password"
-                placeholder="Type your password"
+                placeholder="Nhập mật khẩu của bạn"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 className="border border-gray-300 rounded-md p-2 w-full"
@@ -163,11 +163,11 @@ const RegistrationForm = () => {
             </div>
             <div>
               <label htmlFor="confirmPassword" className="block">
-                Confirm Password:
+                Xác nhận Mật Khẩu:
               </label>
               <input
                 type="password"
-                placeholder="Confirm your password"
+                placeholder="Xác nhận mật khẩu của bạn"
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
                 className="border border-gray-300 rounded-md p-2 w-full"
@@ -177,11 +177,11 @@ const RegistrationForm = () => {
               <>
                 <div>
                   <label htmlFor="phone" className="block">
-                    Phone:
+                    Thư Cố:
                   </label>
                   <input
                     type="tel"
-                    placeholder="Type your phone number"
+                    placeholder="Nhập số thư cố của bạn"
                     value={phone}
                     onChange={(e) => setPhone(e.target.value)}
                     className="border border-gray-300 rounded-md p-2 w-full"
@@ -189,11 +189,11 @@ const RegistrationForm = () => {
                 </div>
                 <div>
                   <label htmlFor="registrationNumber" className="block">
-                    Registration Number:
+                    Số ĐK Bởn:
                   </label>
                   <input
                     type="text"
-                    placeholder="Type your registration number"
+                    placeholder="Nhập số đk bớn của bạn"
                     value={registrationNumber}
                     onChange={(e) => setRegistrationNumber(e.target.value)}
                     className="border border-gray-300 rounded-md p-2 w-full"
@@ -201,11 +201,11 @@ const RegistrationForm = () => {
                 </div>
                 <div>
                   <label htmlFor="hospital" className="block">
-                    Hospital:
+                    Bệnh Viện:
                   </label>
                   <input
                     type="text"
-                    placeholder="Type your hospital"
+                    placeholder="Nhập bệnh viện của bạn"
                     value={hospital}
                     onChange={(e) => setHospital(e.target.value)}
                     className="border border-gray-300 rounded-md p-2 w-full"
@@ -213,11 +213,11 @@ const RegistrationForm = () => {
                 </div>
                 <div>
                   <label htmlFor="department" className="block">
-                    Department:
+                    Phòng Khám:
                   </label>
                   <input
                     type="text"
-                    placeholder="Type your department"
+                    placeholder="Nhập phòng khám của bạn"
                     value={department}
                     onChange={(e) => setDepartment(e.target.value)}
                     className="border border-gray-300 rounded-md p-2 w-full"
@@ -229,11 +229,11 @@ const RegistrationForm = () => {
               <>
                 <div>
                   <label htmlFor="phone" className="block">
-                    Phone:
+                    Thư Cố:
                   </label>
                   <input
                     type="tel"
-                    placeholder="Type your phone number"
+                    placeholder="Nhập số thư cố của bạn"
                     value={phone}
                     onChange={(e) => setPhone(e.target.value)}
                     className="border border-gray-300 rounded-md p-2 w-full"
@@ -241,11 +241,11 @@ const RegistrationForm = () => {
                 </div>
                 <div>
                   <label htmlFor="hkid" className="block">
-                    HKID:
+                    CMND/CCCD:
                   </label>
                   <input
                     type="text"
-                    placeholder="Type your HKID"
+                    placeholder="Nhập CMND/CCCD của bạn"
                     value={hkid}
                     onChange={(e) => setHkid(e.target.value)}
                     className="border border-gray-300 rounded-md p-2 w-full"
@@ -253,11 +253,11 @@ const RegistrationForm = () => {
                 </div>
                 <div>
                   <label htmlFor="address" className="block">
-                    Address:
+                    Địa Chỉ:
                   </label>
                   <input
                     type="text"
-                    placeholder="Type your address"
+                    placeholder="Nhập địa chỉ của bạn"
                     value={address}
                     onChange={(e) => setAddress(e.target.value)}
                     className="border border-gray-300 rounded-md p-2 w-full"
@@ -265,11 +265,11 @@ const RegistrationForm = () => {
                 </div>
                 <div>
                   <label htmlFor="birthday" className="block">
-                    Birthday:
+                    Ngày Sinh:
                   </label>
                   <input
                     type="text"
-                    placeholder="Type your birthday"
+                    placeholder="Nhập ngày sinh của bạn"
                     value={birthday}
                     onChange={(e) => setBirthday(e.target.value)}
                     className="border border-gray-300 rounded-md p-2 w-full"
@@ -279,13 +279,13 @@ const RegistrationForm = () => {
             )}
             <div>
               <label htmlFor="walletAddress" className="block">
-                Wallet Address:
+                Địa Chỉ Ví:
               </label>
               <div className="flex justify-between items-end gap-2">
                 <input
                   className="border border-gray-300 rounded-md p-2 w-full"
                   type="text"
-                  placeholder="Click the fox to connect MetaMask"
+                  placeholder="Nhấn vào con chó để kết nối MetaMask"
                   value={walletAddress}
                   onChange={(e) => setWalletAddress(e.target.value)}
                   required
@@ -307,10 +307,10 @@ const RegistrationForm = () => {
               type="button"
               onClick={() => window.history.back()}
             >
-              Back
+              Quay Lại
             </button>
             <button className="border border-gray-300 rounded-md p-2 bg-blue-500 text-white font-bold hover:bg-blue-600">
-              Submit
+              Gửi
             </button>
           </div>
           {error && <p className="text-red-500">{error}</p>}

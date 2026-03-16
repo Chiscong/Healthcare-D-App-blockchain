@@ -30,7 +30,7 @@ function PatientPage() {
           const MedicalContract = new ethers.Contract(
             MedicalAppContractAddress,
             MedicalAppAbi.abi,
-            signer
+            signer,
           );
           const doctors = await MedicalContract.showDoctorPermit();
           if (doctors.length === 0) {
@@ -60,10 +60,10 @@ function PatientPage() {
     // Function to insert words into spans one by one
     const insertWords = async () => {
       const words = [
-        "To give permission to a doctor, enter the doctor's MetaMask wallet address and click on the confirm button.",
-        "To view a doctor's details, click on the info button.",
-        "To delete a doctor's permission, click on the delete button.",
-        "Note: For give permission and remove permission from a doctor, Please make sure you have enough SepoliaETH in your MetaMask wallet.",
+        "Cấp quyền cho bác sĩ, nhập địa chỉ ví MetaMask của bác sĩ và nhập vào nút xác nhận.",
+        "X em chi tiết của bác sĩ, nhập vào nút thông tin.",
+        "Xóa quyền của bác sĩ, nhập vào nút xóa.",
+        "Lưu ý: Để cấp quyền và gỡ bỏ quyền từ bác sĩ, vui lòng chắc chắn bạn có đủ SepoliaETH trong ví MetaMask của bạn.",
       ];
       for (let i = 0; i < words.length; i++) {
         const instructionChar =
@@ -89,7 +89,7 @@ function PatientPage() {
       if (accounts.length === 0) {
         // User disconnected their MetaMask account
         setCurrentAccount("");
-        alert("You disconnected your MetaMask wallet");
+        alert("Bạn đã ngắt kết nối ví MetaMask của mình");
         // navigate("/");
       } else {
         // User switched or connected a new account
@@ -100,7 +100,7 @@ function PatientPage() {
     const handleChainChanged = (chainId) => {
       if (chainId !== "0xaa36a7") {
         // User switched to a different network
-        alert("Please connect to the Sepolia testnet");
+        alert("Vui lòng kết nối với mạng thử nghiệm Sepolia");
         // navigate("/");
         return;
       }
@@ -110,7 +110,7 @@ function PatientPage() {
       try {
         const { ethereum } = window;
         if (!ethereum) {
-          alert("MetaMask not detected. Please install MetaMask.");
+          alert("MetaMask chưa được phát hiện. Vui lòng cài đặt MetaMask.");
           return;
         }
         // event listener when user switches account
@@ -118,11 +118,11 @@ function PatientPage() {
         // event listener when user switches network
         ethereum.on("chainChanged", handleChainChanged);
         let chainId = await ethereum.request({ method: "eth_chainId" });
-        console.log("Connected to chain " + chainId);
+        console.log("Kết nối với chuỗi " + chainId);
         // make sure user connects to Sepolia testnet
         const sepoliaId = "0xaa36a7";
         if (chainId !== sepoliaId) {
-          alert("Please connect to the Sepolia testnet");
+          alert("Vui lòng kết nối với mạng thử nghiệm Sepolia");
           // navigate("/");
           return;
         }
@@ -130,7 +130,7 @@ function PatientPage() {
         const accounts = await ethereum.request({
           method: "eth_requestAccounts",
         });
-        console.log("Connected to MetaMask wallet: " + accounts[0]);
+        console.log("Kết nối với ví MetaMask: " + accounts[0]);
         setCurrentAccount(accounts[0]);
         console.log(currentAccount);
       } catch (error) {
@@ -164,7 +164,7 @@ function PatientPage() {
           navigate("/");
         }
         if (data.userType !== "patient") {
-          console.log("You are not a patient");
+          console.log("Bạn không phải là một bệnh nhân");
           navigate("/");
         }
         console.log(data);
@@ -178,7 +178,7 @@ function PatientPage() {
   const givePermission = async (e) => {
     e.preventDefault();
     if (doctorWalletAddress === "") {
-      alert("Please enter the wallet address of the doctor");
+      alert("Vui lòng nhập địa chỉ ví của bác sĩ");
       return;
     }
     try {
@@ -189,23 +189,23 @@ function PatientPage() {
         const MedicalContract = new ethers.Contract(
           MedicalAppContractAddress,
           MedicalAppAbi.abi,
-          signer
+          signer,
         );
         MedicalContract.regDoctorPermit(doctorWalletAddress)
           .then((res) => {
             console.log(res);
-            alert("Permission given");
+            alert("Cấp quyền đã cho");
           })
           .catch((error) => {
             console.log(error);
-            alert("Error giving permission");
+            alert("Lỗi cấp quyền");
           });
       } else {
-        alert("Ethereum object doesn't exist!");
+        alert("Đối tượng Ethereum không tồn tại!");
       }
     } catch (error) {
       console.log(error);
-      alert("Error giving permission");
+      alert("Lỗi cấp quyền");
     }
   };
 
@@ -228,7 +228,7 @@ function PatientPage() {
       setDoctorInfo(data);
     } catch (error) {
       console.log(error);
-      alert("Error fetching doctor info");
+      alert("Lỗi lấy thông tin bác sĩ");
     }
   };
 
@@ -243,36 +243,36 @@ function PatientPage() {
         const MedicalContract = new ethers.Contract(
           MedicalAppContractAddress,
           MedicalAppAbi.abi,
-          signer
+          signer,
         );
         MedicalContract.deleteDoctorPermit(doctor)
           .then((res) => {
             console.log(res);
-            alert("Permission deleted");
+            alert("Quyền đã xóa");
           })
           .catch((error) => {
             console.log(error);
-            alert("Error deleting permission");
+            alert("Lỗi xóa quyền");
           });
       } else {
-        alert("Ethereum object doesn't exist!");
+        alert("Đối tượng Ethereum không tồn tại!");
       }
     } catch (error) {
       console.log(error);
-      alert("Error deleting permission");
+      alert("Lỗi xóa quyền");
     }
   };
 
   // 5.connect to MetaMask wallet button
   const handleConnectMetaMask = async () => {
     if (currentAccount) {
-      alert("You have already connected your wallet address");
+      alert("Bạn đã kết nối địa chỉ ví của mình");
       return;
     }
     try {
       const { ethereum } = window;
       if (!ethereum) {
-        alert("MetaMask not detected. Please install MetaMask.");
+        alert("MetaMask chưa được phát hiện. Vui lòng cài đặt MetaMask.");
         return;
       }
       const accounts = await ethereum.request({
@@ -289,7 +289,7 @@ function PatientPage() {
   // 6. Make appointment
   const handleMakeAppointment = (doctorInfo) => {
     console.log("Make appointment with doctor: " + doctorInfo.name);
-    alert("under development");
+    alert("đang phát triển");
   };
 
   return (
@@ -301,12 +301,12 @@ function PatientPage() {
         <div className="bg-gray-100 rounded-lg shadow-md">
           <div className="px-6 py-4 border-b border-gray-200">
             <div className="text-lg font-bold text-gray-800">
-              Patient Dashboard
+              Bảng Điều Khiển Bệnh Nhân
             </div>
             <div className="mt-2 text-gray-600">
               {currentAccount === ""
-                ? "Please connect your MetaMask wallet"
-                : `Your wallet address is: ${currentAccount}`}
+                ? "Vui lòng kết nối ví MetaMask của bạn"
+                : `Địa chỉ ví của bạn là: ${currentAccount}`}
             </div>
             <button onClick={handleConnectMetaMask} className="mt-4">
               <img
@@ -314,13 +314,13 @@ function PatientPage() {
                 alt="MetaMask Fox"
                 className="w-8 h-8 inline"
               />
-              <span className="ml-2 text-blue-500">Connect MetaMask</span>
+              <span className="ml-2 text-blue-500">Kết nối MetaMask</span>
             </button>
           </div>
           <div className="p-6">
             {/* instrcution */}
             <div className="text-lg font-bold text-gray-800 mb-2">
-              Instructions:
+              Hướng dẫn:
             </div>
             <div className="h-[150px] overflow-y-hidden border-b border-gray-200 mb-4">
               <p className="text-sm mb-4 text-gray-600">
@@ -342,13 +342,13 @@ function PatientPage() {
                 {/* Give Permission to Doctor */}
                 <div className="mb-8">
                   <div className="text-lg font-bold text-gray-800 mb-2">
-                    Give Permission to Doctor
+                    Cấp Quyền cho Bác Sĩ
                   </div>
                   <div className="flex">
                     <input
                       className="w-80 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:border-blue-500"
                       type="text"
-                      placeholder="Type the wallet address of the doctor"
+                      placeholder="Nhập địa chỉ ví của bác sĩ"
                       value={doctorWalletAddress}
                       onChange={(e) => setDoctorWalletAddress(e.target.value)}
                     />
@@ -356,7 +356,7 @@ function PatientPage() {
                       className="ml-2 px-4 py-2 bg-blue-500 text-white font-semibold rounded-md hover:bg-blue-600 text-sm"
                       onClick={givePermission}
                     >
-                      Confirm
+                      Xác nhận
                     </button>
                   </div>
                 </div>
@@ -364,12 +364,12 @@ function PatientPage() {
                 <div>
                   <div className="text-lg font-bold text-gray-800 mb-2">
                     <p className="text-lg font-bold text-gray-800">
-                      Authorized Doctors
+                      Bác Sĩ Được Phép
                     </p>
                   </div>
                   <div className="mt-4">
                     {authorizedDoctors.length === 0 ? (
-                      <p className="text-gray-600">No authorized doctors</p>
+                      <p className="text-gray-600">Không có bác sĩ được phép</p>
                     ) : (
                       authorizedDoctors.map((doctor, index) => (
                         <div
@@ -402,7 +402,7 @@ function PatientPage() {
               {/* Right-hand side - Doctor Details */}
               <div className="w-1/2">
                 <div className="text-lg font-bold text-gray-800 mb-2">
-                  Doctor Details:
+                  Chi Tiết Bác Sĩ:
                 </div>
                 <div className="border border-gray-200 p-4 rounded-lg">
                   <div className="flex items-center mb-4">
@@ -418,7 +418,7 @@ function PatientPage() {
                   </div>
                   <div className="mb-4">
                     <div className="flex items-center">
-                      <div className="text-gray-800">Wallet Address:</div>
+                      <div className="text-gray-800">Địa chỉ Ví:</div>
                       <div className="ml-2 text-gray-600">
                         {doctorInfo.walletAddress}
                       </div>
@@ -430,13 +430,13 @@ function PatientPage() {
                       </div>
                     </div>
                     <div className="flex items-center mt-2">
-                      <div className="text-gray-800">Registration Number:</div>
+                      <div className="text-gray-800">Số ĐK Bởn:</div>
                       <div className="ml-2 text-gray-600">
                         {doctorInfo.registrationNumber}
                       </div>
                     </div>
                     <div className="flex items-center mt-2">
-                      <div className="text-gray-800">Hospital:</div>
+                      <div className="text-gray-800">Bệnh Viện:</div>
                       <div className="ml-2 text-gray-600">
                         {doctorInfo.hospital}
                       </div>
@@ -446,7 +446,7 @@ function PatientPage() {
                     className="mt-4 px-4 py-2 bg-blue-500 text-white font-semibold rounded-md hover:bg-blue-600 text-sm"
                     onClick={() => handleMakeAppointment(doctorInfo)}
                   >
-                    Make Appointment
+                    Đặt Lịch Hẹn
                   </button>
                 </div>
               </div>

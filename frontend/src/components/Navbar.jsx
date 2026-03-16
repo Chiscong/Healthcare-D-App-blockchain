@@ -22,7 +22,7 @@ function Navbar(props) {
 
   const handleItemClick = (message) => {
     // Set the message for the modal
-    setModalMessage("Other pages are still under development.");
+    setModalMessage("Các trang khác vẫn đang được phát triển.");
     // Show the modal
     setShowModal(true);
   };
@@ -65,7 +65,7 @@ function Navbar(props) {
                     className="flex items-center p-4 hover:bg-gray-300"
                   >
                     <FaIcons.FaSignOutAlt />
-                    <span className="mx-4">Logout</span>
+                    <span className="mx-4">Đăng xuất</span>
                   </Link>
                 </li>
               </ul>

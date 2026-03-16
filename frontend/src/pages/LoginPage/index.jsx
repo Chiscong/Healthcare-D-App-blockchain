@@ -49,7 +49,7 @@ function LoginPage() {
 
   const handleConnectMetaMask = async () => {
     if (walletAddress) {
-      setError("You have already connected your wallet address");
+      setError("Bạn đã kết nối địa chỉ ví của mình");
       return;
     }
     if (window.ethereum) {
@@ -58,12 +58,12 @@ function LoginPage() {
           method: "eth_requestAccounts",
         });
         setWalletAddress(accounts[0]);
-        window.alert(`Wallet address connected: ${accounts[0]}`);
+        window.alert(`Địa chỉ ví đã kết nối: ${accounts[0]}`);
       } catch (error) {
-        setError("MetaMask connection failed");
+        setError("Kết nối MetaMask không thành công");
       }
     } else {
-      setError("MetaMask not detected");
+      setError("MetaMask chưa được phát hiện");
     }
   };
 
@@ -71,11 +71,11 @@ function LoginPage() {
     e.preventDefault();
     let emailRegex = /\S+@\S+\.\S+/;
     if (!emailRegex.test(email)) {
-      setError("Please enter a valid email");
+      setError("Vui lòng nhập một địa chỉ email hợp lệ");
       return;
     }
     if (!password) {
-      setError("Please enter a password");
+      setError("Vui lòng nhập mật khẩu");
       return;
     }
     fetch(`${apiUrl}/login`, {
@@ -119,7 +119,7 @@ function LoginPage() {
               htmlFor="userType"
               className="block text-sm font-medium text-gray-700"
             >
-              User Type:
+              Loại người dùng:
             </label>
             <select
               id="userType"
@@ -127,8 +127,8 @@ function LoginPage() {
               onChange={(e) => setUserType(e.target.value)}
               className="mt-1 block w-full p-2 border border-gray-300 rounded-md"
             >
-              <option value="patient">Patient</option>
-              <option value="doctor">Doctor</option>
+              <option value="patient">Bệnh nhân</option>
+              <option value="doctor">Bác sĩ</option>
             </select>
           </div>
           <div className="mb-4">
@@ -142,7 +142,7 @@ function LoginPage() {
               type="email"
               id="email"
               value={email}
-              placeholder="Type your email"
+              placeholder="Nhập email của bạn"
               onChange={(e) => setEmail(e.target.value)}
               className="mt-1 block w-full p-2 border border-gray-300 rounded-md"
             />
@@ -152,13 +152,13 @@ function LoginPage() {
               htmlFor="password"
               className="block text-sm font-medium text-gray-700"
             >
-              Password:
+              Mật khẩu:
             </label>
             <input
               type="password"
               id="password"
               value={password}
-              placeholder="Type your password"
+              placeholder="Nhập mật khẩu của bạn"
               onChange={(e) => setPassword(e.target.value)}
               className="mt-1 block w-full p-2 border border-gray-300 rounded-md"
             />
@@ -168,7 +168,7 @@ function LoginPage() {
               type="submit"
               className="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600"
             >
-              Login
+              Đăng nhập
             </button>
             {/* <GoogleLogin onSuccess={responseMessage} onError={errorMessage} /> */}
             <button
@@ -176,7 +176,7 @@ function LoginPage() {
               onClick={() => navigate(`/register/${userType}`)}
               className="text-blue-500 hover:underline"
             >
-              Register
+              Đăng ký
             </button>
           </div>
           {error && <p className="text-red-500">{error}</p>}
@@ -187,7 +187,7 @@ function LoginPage() {
             onClick={handleConnectMetaMask}
             className="bg-gray-300 text-gray-700 px-4 py-2 rounded-md hover:bg-gray-400"
           >
-            <img src={MetaMask} alt="MetaMask" className="w-6 inline" /> Connect
+            <img src={MetaMask} alt="MetaMask" className="w-6 inline" /> Kết nối
             MetaMask
           </button>
           {/* <p className="text-sm text-gray-600 mt-2">

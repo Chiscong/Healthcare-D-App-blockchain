@@ -27,9 +27,9 @@ function DoctorPage() {
     // Function to insert words into spans one by one
     const insertWords = async () => {
       const words = [
-        "To view a patient's medical records, enter the patient's MetaMask wallet address and click on the search button. To add a new medical record, click on the + on the right.",
-        "Note: You can only view medical records of patients who have authorized you to do so.",
-        "Upload medical records to the blockchain requires a gas fee. Please make sure you have enough SepoliaETH in your MetaMask wallet.",
+        "Xem hồ sơ y tế của bệnh nhân, nhập địa chỉ ví MetaMask của bệnh nhân và nhập vào nút tìm kiếm. Để thêm bản ghi y tế mới, nhập vào dấu + ở phía phải.",
+        "Lưu ý: Bạn chỉ có thể xem hồ sơ y tế của các bệnh nhân đã phép bạn xem.",
+        "Tải lên bản ghi y tế lên blockchain yêu cầu phí gas. Vui lòng chắc chắn bạn có đủ SepoliaETH trong ví MetaMask của bạn.",
       ];
 
       for (let i = 0; i < words.length; i++) {
@@ -58,7 +58,7 @@ function DoctorPage() {
       if (accounts.length === 0) {
         // User disconnected their MetaMask account
         setCurrentAccount("");
-        alert("You disconnected your MetaMask wallet");
+        alert("Bạn đã ngắt kết nối ví MetaMask của mình");
         // navigate("/");
       } else {
         // User switched or connected a new account
@@ -69,7 +69,7 @@ function DoctorPage() {
     const handleChainChanged = (chainId) => {
       if (chainId !== "0xaa36a7") {
         // User switched to a different network
-        alert("Please connect to the Sepolia testnet");
+        alert("Vui lòng kết nối với mạng thử nghiệm Sepolia");
         // navigate("/");
         return;
       }
@@ -79,7 +79,7 @@ function DoctorPage() {
       try {
         const { ethereum } = window;
         if (!ethereum) {
-          alert("MetaMask not detected. Please install MetaMask.");
+          alert("MetaMask chưa được phát hiện. Vui lòng cài đặt MetaMask.");
           // navigate("/");
           return;
         }
@@ -88,11 +88,11 @@ function DoctorPage() {
         // event listener when user switches network
         ethereum.on("chainChanged", handleChainChanged);
         let chainId = await ethereum.request({ method: "eth_chainId" });
-        console.log("Connected to chain " + chainId);
+        console.log("Kết nối với chuỗi " + chainId);
         // make sure user connects to Sepolia testnet
         const sepoliaId = "0xaa36a7";
         if (chainId !== sepoliaId) {
-          alert("Please connect to the Sepolia testnet");
+          alert("Vui lòng kết nối với mạng thử nghiệm Sepolia");
           // navigate("/");
           return;
         }
@@ -100,7 +100,7 @@ function DoctorPage() {
         const accounts = await ethereum.request({
           method: "eth_requestAccounts",
         });
-        console.log("Connected to MetaMask wallet: " + accounts[0]);
+        console.log("Kết nối với ví MetaMask: " + accounts[0]);
         setCurrentAccount(accounts[0]);
         console.log(currentAccount);
       } catch (error) {
@@ -148,7 +148,7 @@ function DoctorPage() {
   const handleSearch = async (event) => {
     event.preventDefault();
     if (patientWalletAddress === "") {
-      alert("Please enter a patient's wallet address");
+      alert("Vui lòng nhập địa chỉ ví của bệnh nhân");
       return;
     }
     try {
@@ -159,15 +159,13 @@ function DoctorPage() {
         const MedicalContract = new ethers.Contract(
           MedicalAppContractAddress,
           MedicalAppAbi.abi,
-          signer
+          signer,
         );
         MedicalContract.getMedical(patientWalletAddress)
           .then((res) => {
             console.log(res);
             if (res[1] === false) {
-              alert(
-                "You are not authorized to view this patient's medical records"
-              );
+              alert("Bạn không được phép xem hồ sơ y tế của bệnh nhân này");
               return;
             }
             // Convert the Proxy object to a regular JavaScript object
@@ -182,7 +180,7 @@ function DoctorPage() {
             console.log(mappedMedicalRecords);
 
             if (mappedMedicalRecords.length === 0) {
-              alert("No medical records found");
+              alert("Không tìm thấy hồ sơ y tế");
             }
 
             setMedicalRecords(mappedMedicalRecords);
@@ -191,7 +189,7 @@ function DoctorPage() {
             console.log(err);
           });
       } else {
-        alert("Ethereum object doesn't exist!");
+        alert("Đối tượng Ethereum không tồn tại!");
       }
     } catch (error) {
       console.log(error);
@@ -209,14 +207,14 @@ function DoctorPage() {
         const MedicalContract = new ethers.Contract(
           MedicalAppContractAddress,
           MedicalAppAbi.abi,
-          signer
+          signer,
         );
 
         // create medical record on blockchain
         const tx = await MedicalContract.createMedicalRecord(
           patientWalletAddress,
           newDate,
-          newInfo
+          newInfo,
         );
         // Wait for transaction to be mined
         const receipt = await tx.wait();
@@ -225,7 +223,7 @@ function DoctorPage() {
         const filter = MedicalContract.filters.MedicalRecordCreated();
         const events = await MedicalContract.queryFilter(
           filter,
-          receipt.blockNumber
+          receipt.blockNumber,
         );
 
         // Check the latest emitted event
@@ -233,19 +231,19 @@ function DoctorPage() {
         console.log(latestEvent);
 
         if (latestEvent.args.success) {
-          alert("Medical record created successfully!");
+          alert("Bản ghi y tế đã được tạo thành công!");
           setMedicalRecords([
             ...MedicalRecords,
             { date: newDate, info: newInfo },
           ]);
         } else {
-          alert("Medical record creation failed!");
+          alert("Tạo bản ghi y tế không thành công!");
         }
         setNewDate("");
         setNewInfo("");
         setShowModal(false);
       } else {
-        alert("Ethereum object doesn't exist!");
+        alert("Đối tượng Ethereum không tồn tại!");
       }
     } catch (error) {
       console.log(error);
@@ -254,7 +252,7 @@ function DoctorPage() {
 
   const handleOpenModal = () => {
     if (patientWalletAddress === "") {
-      alert("Please enter a patient's wallet address");
+      alert("Vui lòng nhập địa chỉ ví của bệnh nhân");
       return;
     }
     setShowModal(true);
@@ -267,7 +265,7 @@ function DoctorPage() {
   // 3. connect to MetaMask wallet
   const handleConnectMetaMask = async () => {
     if (currentAccount) {
-      alert("You have already connected your wallet address");
+      alert("Bạn đã kết nối địa chỉ ví của mình");
       return;
     }
     if (window.ethereum) {
@@ -276,12 +274,12 @@ function DoctorPage() {
           method: "eth_requestAccounts",
         });
         setCurrentAccount(accounts[0]);
-        alert(`Wallet address connected: ${accounts[0]}`);
+        alert(`Địa chỉ ví kết nối: ${accounts[0]}`);
       } catch (error) {
-        alert("MetaMask connection failed");
+        alert("Kết nối MetaMask không thành công");
       }
     } else {
-      alert("MetaMask not detected");
+      alert("MetaMask chưa được phát hiện");
     }
   };
 
@@ -297,11 +295,13 @@ function DoctorPage() {
         <div className="mx-auto p-6 h-full">
           <div className="bg-white shadow-md rounded-md">
             <div className="px-6 py-4 border-b border-gray-200 h-full">
-              <h1 className="text-2xl font-bold mb-2">Doctor Dashboard</h1>
+              <h1 className="text-2xl font-bold mb-2">
+                Bảng điều khiển Bác sĩ
+              </h1>
               <div className="mt-2 text-gray-600">
                 {currentAccount === ""
-                  ? "Please connect your MetaMask wallet"
-                  : `Your wallet address is: ${currentAccount}`}
+                  ? "Vui lòng kết nối ví MetaMask của bạn"
+                  : `Địa chỉ ví của bạn là: ${currentAccount}`}
               </div>
               <button onClick={handleConnectMetaMask} className="mt-4">
                 <img
@@ -309,7 +309,7 @@ function DoctorPage() {
                   alt="MetaMask Fox"
                   className="w-8 h-8 inline"
                 />
-                <span className="ml-2 text-blue-500">Connect MetaMask</span>
+                <span className="ml-2 text-blue-500">Kết nối MetaMask</span>
               </button>
             </div>
             {/* Instruction */}
@@ -326,14 +326,12 @@ function DoctorPage() {
             </div>
             <div className="p-6 h-[500px]">
               <div className="mb-6">
-                <p className="text-lg font-bold mb-2">
-                  Patient Medical Records
-                </p>
+                <p className="text-lg font-bold mb-2">Hồ sơ Y tế Bệnh Nhân</p>
                 <form onSubmit={handleSearch} className="flex items-center">
                   <input
                     className="border border-gray-300 rounded-md px-4 py-2 w-full mr-2"
                     type="text"
-                    placeholder="Enter Patient's MetaMask Wallet Address"
+                    placeholder="Nhập địa chỉ ví MetaMask của bệnh nhân"
                     value={patientWalletAddress}
                     onChange={(e) => setPatientWalletAddress(e.target.value)}
                   />
@@ -348,9 +346,9 @@ function DoctorPage() {
               <table className="w-full">
                 <thead>
                   <tr>
-                    <th className="border-b border-gray-300 px-4 py-2">Date</th>
+                    <th className="border-b border-gray-300 px-4 py-2">Ngày</th>
                     <th className="border-b border-gray-300 px-4 py-2">
-                      Information
+                      Thông tin
                     </th>
                     <th className="border-b border-gray-300 px-4 py-2 text-right">
                       <button
@@ -383,18 +381,18 @@ function DoctorPage() {
                       >
                         <FontAwesomeIcon icon={faTimes} />
                       </button>
-                      <h2 className="text-lg font-bold mb-4">New Records</h2>
+                      <h2 className="text-lg font-bold mb-4">Bản Ghi Mới</h2>
                       <input
                         className="border border-gray-300 rounded-md px-4 py-2 mb-2 w-full"
                         type="text"
-                        placeholder="Enter the date"
+                        placeholder="Nhập ngày"
                         value={newDate}
                         onChange={(e) => setNewDate(e.target.value)}
                       />
                       <input
                         className="border border-gray-300 rounded-md px-4 py-2 mb-4 w-full"
                         type="text"
-                        placeholder="Enter the information"
+                        placeholder="Nhập thông tin"
                         value={newInfo}
                         onChange={(e) => setNewInfo(e.target.value)}
                       />
@@ -403,7 +401,7 @@ function DoctorPage() {
                           className="bg-blue-500 text-white py-2 px-4 rounded-md hover:bg-blue-600 mr-2"
                           type="submit"
                         >
-                          Create
+                          Tạo
                         </button>
                       </div>
                     </form>
