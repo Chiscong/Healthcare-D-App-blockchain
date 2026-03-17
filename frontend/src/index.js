@@ -4,6 +4,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import LoginPage from "./pages/LoginPage";
 import RegisterPage from "./pages/RegisterPage";
 import PatientPage from "./pages/PatientPage";
+import AppointmentPage from "./pages/AppointmentPage";
 import DoctorPage from "./pages/DoctorPage/";
 import NoPage from "./pages/NoPage";
 import "./index.css";
@@ -20,6 +21,7 @@ export default function App() {
           <Route path="register/:userType" element={<RegisterPage />} />
           <Route element={<ProtectedRoutes />}>
             <Route path="patient" element={<PatientPage />} />
+            <Route path="appointments" element={<AppointmentPage />} />
             <Route path="doctor" element={<DoctorPage />} />
           </Route>
           <Route path="*" element={<NoPage />} />

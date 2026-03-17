@@ -1,50 +1,61 @@
 const express = require("express");
 const { connectDb, getDb } = require("./database");
+const { initializeCollections } = require("./configs/database-init");
 const cors = require("cors");
-const bcrypt = require("bcrypt");
-const jwt = require("jsonwebtoken");
 const bodyParser = require("body-parser");
+const dotenv = require("dotenv");
+
+// Import routes
+const authRoutes = require("./Routes/authRoutes");
+const appointmentRoutes = require("./Routes/appointmentRoutes");
+const doctorRoutes = require("./Routes/doctorRoutes");
+const debugRoutes = require("./Routes/debugRoutes");
+
+dotenv.config();
+
 const app = express();
 const PORT = process.env.PORT || 8080;
-const dotenv = require("dotenv");
-dotenv.config();
-function authenticateToken(req, res, next) {
-  const authHeader = req.headers["authorization"];
-  const token = authHeader?.split(" ")[1];
 
-  if (!token) {
-    return res.status(401).send({ error: "Token required." });
-  }
-
-  jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, user) => {
-    if (err) {
-      return res.status(403).send({ error: "Invalid token." });
-    }
-    req.user = user;
-    next();
-  });
-}
-
+// Middleware
 app.use(express.json());
 app.use(bodyParser.json());
-
-app.use(cors({
+app.use(
+  cors({
     origin: process.env.CLIENT_URL,
-    credentials: true
-}));
+    credentials: true,
+  }),
+);
 
+// Health check endpoint
+app.get("/", (req, res) => {
+  res.send("Hello World!");
+});
+
+// Routes
+app.use("/", authRoutes);
+app.use("/", appointmentRoutes);
+app.use("/", doctorRoutes);
+app.use("/", debugRoutes); // Debug endpoints
+
+// Connect to database and start server
 let server;
 connectDb()
-  .then(() => {
+  .then(async () => {
+    console.log("✓ Database connected");
+
+    // Initialize collections and indexes
+    await initializeCollections();
+
     server = app.listen(PORT, () => {
-      console.log(`Server is listening on port ${PORT}`);
+      console.log(`✓ Server is listening on port ${PORT}`);
     });
   })
   .catch((error) => {
-    console.error("Failed to connect to database:", error);
+    console.error("✗ Failed to connect to database:", error);
     process.exit(1);
   });
 
+// Graceful shutdown
 process.on("SIGINT", async () => {
   console.log("Shutting down...");
   if (server) server.close();
@@ -53,98 +64,4 @@ process.on("SIGINT", async () => {
   process.exit(0);
 });
 
-app.get("/auth-endpoint", authenticateToken, (request, response) => {
-  response.json({
-    userType: request.user.userType,
-    userData: request.user.userData,
-  });
-});
-
-app.get("/", (req, res) => {
-  res.send("Hello World!");
-});
-
-app.get("/doctor-info/:doctorAddress", async (req, res) => {
-  const { doctorAddress } = req.params;
-  console.log("Doctor address:", doctorAddress);
-  try {
-    const db = getDb();
-    const doctorExists = await db
-      .collection("doctor")
-      .findOne({ walletAddress: doctorAddress });
-
-    if (!doctorExists) {
-      console.log("Doctor does not exist.");
-      return res.status(400).send({ error: "Doctor does not exist." });
-    }
-    console.log("Doctor exists.");
-    res.status(200).json(doctorExists);
-  } catch (error) {
-    console.error("Error getting doctor info:", error);
-    res
-      .status(500)
-      .send({ error: "An error occured while getting doctor info." });
-  }
-});
-
-app.post("/register", async (req, res) => {
-  let { userType, ...userData } = req.body;
-  try {
-    const db = getDb();
-    const userExists = await db.collection(userType).findOne({
-      $or: [
-        { walletAddress: userData.walletAddress },
-        { email: userData.email },
-      ],
-    });
-
-    if (userExists) {
-      console.log("User already exists.");
-      return res.status(400).send({ error: "User already exists." });
-    }
-    userData.password = await bcrypt.hash(userData.password, 10);
-    await db.collection(userType).insertOne(userData);
-    console.log("User data stored successfully.");
-    res.status(200).json({ success: "User created successfully." });
-  } catch (error) {
-    console.error("Error storing user data:", error);
-    res
-      .status(500)
-      .send({ error: "An error occured while trying to create a user." });
-  }
-});
-
-app.post("/login", async (req, res) => {
-  let { userType, email, password } = req.body;
-  try {
-    const db = getDb();
-    const user = await db.collection(userType).findOne({ email: email });
-
-    if (!user) {
-      console.log("User not found.");
-      return res.status(400).send({ error: "User not found." });
-    }
-
-    const passwordMatch = await bcrypt.compare(password, user.password);
-
-    if (!passwordMatch) {
-      console.log("Incorrect password.");
-      return res.status(400).send({ error: "Incorrect password." });
-    }
-
-    const accessToken = jwt.sign(
-      { userType: userType, userData: user },
-      process.env.ACCESS_TOKEN_SECRET,
-      { expiresIn: "15m" }
-    );
-
-    console.log("User logged in successfully.");
-    res.status(200).json({
-      success: "User logged in successfully.",
-      accessToken: accessToken,
-    });
-  } catch (error) {
-    console.error("Error logging in:", error);
-    res.status(500).send({ error: "An error occured while trying to log in." });
-  }
-});
+module.exports = app;

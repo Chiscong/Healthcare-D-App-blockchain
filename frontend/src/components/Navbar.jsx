@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import * as FaIcons from "react-icons/fa";
 import { Link } from "react-router-dom";
 import { SidebarData } from "./SidebarData";
@@ -10,8 +10,48 @@ function Navbar(props) {
   const [sidebar] = useState(true);
   const cookies = new Cookies();
   const navigate = useNavigate();
-  const [showModal, setShowModal] = useState(false); // State to control modal visibility
-  const [modalMessage, setModalMessage] = useState(""); // State to hold modal message
+  const [showModal, setShowModal] = useState(false);
+  const [modalMessage, setModalMessage] = useState("");
+  const [userType, setUserType] = useState(null);
+  const apiUrl = process.env.REACT_APP_API_URL || "http://localhost:8080";
+
+  useEffect(() => {
+    // Lấy userType từ API
+    const fetchUserType = async () => {
+      try {
+        const token = cookies.get("auth");
+        if (!token) {
+          console.warn("No auth token found");
+          return;
+        }
+
+        const response = await fetch(`${apiUrl}/auth-endpoint`, {
+          method: "GET",
+          headers: { Authorization: `Bearer ${token}` },
+        });
+
+        if (!response.ok) {
+          console.error(
+            "Auth endpoint returned status:",
+            response.status,
+            response.statusText,
+          );
+          return;
+        }
+
+        const data = await response.json();
+        if (data.userType) {
+          setUserType(data.userType);
+        } else if (data.error) {
+          console.error("Auth error from server:", data.error);
+        }
+      } catch (error) {
+        console.error("Error fetching user type:", error);
+      }
+    };
+
+    fetchUserType();
+  }, [apiUrl]);
 
   const handleLogout = () => {
     // Remove the JWT token from the cookie
@@ -27,6 +67,14 @@ function Navbar(props) {
     setShowModal(true);
   };
 
+  // Filter sidebar items based on userType
+  const filteredSidebarData = userType
+    ? SidebarData.filter((item) => {
+        if (item.userType === "both") return true; // Always show "both" items
+        return item.userType === userType; // Show only items matching userType
+      })
+    : []; // Show empty if userType still loading
+
   return (
     <div className="flex flex-col h-screen">
       <nav className="bg-gray-800">
@@ -41,7 +89,7 @@ function Navbar(props) {
           <div className="flex-1 flex flex-col">
             <nav className="flex-1 bg-gray-200">
               <ul className="flex flex-col">
-                {SidebarData.map((item, index) => {
+                {filteredSidebarData.map((item, index) => {
                   return (
                     <li
                       key={index}

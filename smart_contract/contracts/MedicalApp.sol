@@ -2,7 +2,7 @@
 pragma solidity ^0.8.15;
 
 contract MedicalApp {
-    //structs
+    // structs
     struct Patients {
         MedicalRecord[] medicalRecords;
         address[] DoctorPermit;
@@ -17,23 +17,31 @@ contract MedicalApp {
     mapping (address => Patients) patients;
 
     // modifier
-    address manager;
+    address public manager;
+
+    // FIX: Thêm constructor để gán người deploy là manager
+    constructor() {
+        manager = msg.sender;
+    }
+
     modifier restricted() {
-        require(msg.sender == manager);
+        require(msg.sender == manager, "You are not the manager");
         _;
     }
 
     // Doctor functions
     function getMedical(address patient_address) public view returns (MedicalRecord[] memory, bool){
         bool isCheck = false;
-        for(uint i = 0; i< patients[patient_address].DoctorPermit.length; i++){
+        for(uint i = 0; i < patients[patient_address].DoctorPermit.length; i++){
             if(patients[patient_address].DoctorPermit[i] == msg.sender){
                 isCheck = true;
+                break; // Tối ưu: Tìm thấy thì dừng vòng lặp luôn để tiết kiệm Gas
             }
         }
-        if(isCheck == true){
-            return (patients[patient_address].medicalRecords ,true);
-        }else{
+        
+        if(isCheck){
+            return (patients[patient_address].medicalRecords, true);
+        } else {
             MedicalRecord[] memory empty;
             return (empty, false);
         }
@@ -41,43 +49,44 @@ contract MedicalApp {
 
     function createMedicalRecord(address patient_address, string memory datetime, string memory info) public returns (bool){
         bool isCheck = false;
-        for(uint i = 0; i< patients[patient_address].DoctorPermit.length; i++){
+        for(uint i = 0; i < patients[patient_address].DoctorPermit.length; i++){
             if(patients[patient_address].DoctorPermit[i] == msg.sender){
                 isCheck = true;
+                break; // Tối ưu Gas
             }
         }
-        if(isCheck == true){
+        
+        if(isCheck){
             MedicalRecord memory newMedicalRecord = MedicalRecord(datetime, info);
             patients[patient_address].medicalRecords.push(newMedicalRecord);
             return true;
-        }else{
+        } else {
             return false;
         }
     }
 
-    // function createPatient(address patientAddress) public returns (bool){
-    //     // if the patient is already registered
-    //     if (patients[patientAddress].DoctorPermit.length != 0){
-    //         return false;
-    //     }
-        
-    //     // register patient and add the sender to the list of permitted doctors
-    //     patients[patientAddress].DoctorPermit.push(msg.sender);
-    //     return true;
-    // }
-
-    // Nurse functions
+    // Patient functions
     function regDoctorPermit(address doctor_address) public payable returns (bool){
         bool isCheck = false;
-        for(uint i = 0; i< patients[msg.sender].DoctorPermit.length; i++){
+        for(uint i = 0; i < patients[msg.sender].DoctorPermit.length; i++){
             if(patients[msg.sender].DoctorPermit[i] == doctor_address){
                 isCheck = true;
+                break;
             }
         }
-        if (isCheck == true){
-            return false;
-        }else{
+        
+        if (isCheck){
+            // Nếu đã cấp quyền rồi mà vẫn gọi hàm có gửi tiền -> Hoàn trả lại tiền (revert)
+            revert("The doctor is already permitted");
+        } else {
             patients[msg.sender].DoctorPermit.push(doctor_address);
+            
+            // FIX: LOGIC CHUYỂN TIỀN CHO BÁC SĨ
+            // Nếu bệnh nhân có đính kèm ETH (msg.value > 0) khi gọi hàm, chuyển số tiền đó vào ví bác sĩ
+            if (msg.value > 0) {
+                payable(doctor_address).transfer(msg.value);
+            }
+            
             return true;
         }
     }
@@ -86,21 +95,22 @@ contract MedicalApp {
         return patients[msg.sender].DoctorPermit;
     }
 
-    function deleteDoctorPermit(address doctor_address) public payable returns (bool, string memory){
-        // if there are only one doctor in the list
-        // if (patients[msg.sender].DoctorPermit.length == 1){
-        //     return (false, "You can't delete the last doctor in the list");
-        // }
-        // else{
-            for(uint i = 0; i< patients[msg.sender].DoctorPermit.length; i++){
-                // if the doctor is in the list
-                if(patients[msg.sender].DoctorPermit[i] == doctor_address){
-                    delete patients[msg.sender].DoctorPermit[i];
-                    return (true, "The doctor is deleted");
-                }
+    function deleteDoctorPermit(address doctor_address) public returns (bool, string memory){
+        uint length = patients[msg.sender].DoctorPermit.length;
+        
+        for(uint i = 0; i < length; i++){
+            if(patients[msg.sender].DoctorPermit[i] == doctor_address){
+                
+                // FIX: XÓA TRIỆT ĐỂ KHỎI MẢNG TRÁNH LỖI ENS NAME TRÊN FRONTEND
+                // B1: Đưa phần tử cuối cùng của mảng đè lên vị trí của phần tử cần xóa
+                patients[msg.sender].DoctorPermit[i] = patients[msg.sender].DoctorPermit[length - 1];
+                
+                // B2: Cắt bỏ đuôi mảng (xóa hoàn toàn)
+                patients[msg.sender].DoctorPermit.pop();
+                
+                return (true, "The doctor is deleted");
             }
-            return (false, "The doctor is not in the list");
-        // }
+        }
+        return (false, "The doctor is not in the list");
     }
-
 }
