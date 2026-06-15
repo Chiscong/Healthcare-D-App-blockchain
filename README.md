@@ -1,18 +1,5 @@
 # Medical Healthcare DApp
 
-## Đề xuất tên đề tài
-
-**Tên chính (tiếng Việt):**
-> **Xây dựng ứng dụng quản lý hồ sơ y tế phi tập trung trên nền tảng Blockchain Ethereum**
-
-**Tên phụ / tiếng Anh:**
-> *Decentralized Medical Healthcare DApp — Secure Patient Records and Doctor Access Control on Ethereum*
-
-**Các tên thay thế có thể dùng:**
-- Hệ thống lưu trữ và chia sẻ hồ sơ bệnh án điện tử dựa trên Smart Contract
-- Ứng dụng Web3 quản lý y tế: Kết hợp Blockchain và cơ sở dữ liệu phân tán cho bệnh nhân và bác sĩ
-
----
 
 ## 1. Giới thiệu
 
