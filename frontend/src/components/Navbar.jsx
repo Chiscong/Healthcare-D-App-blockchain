@@ -90,20 +90,30 @@ function Navbar(props) {
             <nav className="flex-1 bg-gray-200">
               <ul className="flex flex-col">
                 {filteredSidebarData.map((item, index) => {
+                  if (item.path) {
+                    return (
+                      <li key={index}>
+                        <Link
+                          to={item.path}
+                          className="flex items-center p-4 hover:bg-gray-300"
+                        >
+                          {item.icon}
+                          <span className="mx-4">{item.title}</span>
+                        </Link>
+                      </li>
+                    );
+                  }
+
                   return (
-                    <li
-                      key={index}
-                      onClick={() => handleItemClick(item.message)}
-                    >
-                      {" "}
-                      {/* Pass message to handleItemClick */}
-                      <Link
-                        to={item.path}
-                        className="flex items-center p-4 hover:bg-gray-300"
+                    <li key={index}>
+                      <button
+                        type="button"
+                        onClick={() => handleItemClick(item.message)}
+                        className="flex w-full items-center p-4 hover:bg-gray-300 text-left"
                       >
                         {item.icon}
                         <span className="mx-4">{item.title}</span>
-                      </Link>
+                      </button>
                     </li>
                   );
                 })}

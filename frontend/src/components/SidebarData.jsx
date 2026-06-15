@@ -6,7 +6,7 @@ import * as MdIcons from "react-icons/md";
 export const SidebarData = [
   {
     title: "Bảng điều khiển",
-    path: "/",
+    path: "/patient",
     cName: "nav-text",
     userType: "patient",
     icon: <FaIcons.FaClinicMedical />,
