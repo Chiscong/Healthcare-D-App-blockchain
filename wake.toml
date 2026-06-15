@@ -1,0 +1,7 @@
+[compiler.solc]
+include_paths = ["smart_contract/node_modules"]
+exclude_paths = ["smart_contract/node_modules"]
+remappings = [
+    "@openzeppelin/contracts/=smart_contract/node_modules/@openzeppelin/contracts/",
+]
+target_version = "0.8.20"

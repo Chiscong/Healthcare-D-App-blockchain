@@ -19,7 +19,7 @@ contract MedicalApp {
     // modifier
     address public manager;
 
-    // FIX: Thêm constructor để gán người deploy là manager
+   
     constructor() {
         manager = msg.sender;
     }
